@@ -5,7 +5,7 @@ from keras.layers import Conv2D, MaxPooling2D
 from keras.preprocessing.image import ImageDataGenerator
 from keras import backend as K
 
-from keras.applications import VGG16
+from keras.applications import VGG16,ResNet50,ResNet152,InceptionV3
 
 
 class Model():
@@ -32,13 +32,20 @@ class Model():
     def predict(self, X):
         return model.predict(X)
 
-class PretrainedVGG16(Model):
+class Pretrained(Model):
     
-    def __init__(self, input_shape, num_classes):
+    def __init__(self, pretrained_model, input_shape, num_classes):
         Model.__init__(self)
 
         #picking vgg16 as pretrained (base) model https://keras.io/applications/#vgg16
-        conv_base = VGG16(weights="imagenet", include_top=False, input_shape=input_shape)
+        if pretrained_model == "vgg16":
+            conv_base = VGG16(weights="imagenet", include_top=False, input_shape=input_shape)
+        elif pretrained_model == "resnet50":
+            conv_base = ResNet50(weights="imagenet", include_top=False, input_shape=input_shape)
+        elif pretrained_model == "resnet152":
+            conv_base = ResNet152(weights="imagenet", include_top=False, input_shape=input_shape)
+        elif pretrained_model == "inceptionv3":
+            conv_base = InceptionV3(weights="imagenet", include_top=False, input_shape=input_shape)
         for layer in conv_base.layers:
             layer.trainable = False
 
