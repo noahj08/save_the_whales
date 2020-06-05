@@ -14,7 +14,7 @@ from PIL import Image
 from keras.preprocessing.image import load_img, random_rotation, random_shift, random_shear, random_zoom,img_to_array
 from keras.applications.imagenet_utils import preprocess_input
 from sklearn.model_selection import train_test_split
-
+from sklearn.externals import joblib
 
 class DataGrabber():
     
@@ -97,7 +97,7 @@ class Visualizer():
 def plot_some_images():
     vis = Visualizer()
     dg = DataGrabber()
-    train_df = dg.train_df()
+    train_df = dg.train_df
     rand_rows = train_df.sample(frac=1.)[:20]
     imgs = list(rand_rows['Image'])
     labels = list(rand_rows['Id'])
@@ -106,7 +106,7 @@ def plot_some_images():
 def plot_categlory_histogram():
     vis = Visualizer()
     dg = DataGrabber()
-    train_df = dg.train_df()
+    train_df = dg.train_df
     size_buckets = Counter(train_df['Id'].value_counts().values)
 
     plt.figure(figsize=(10, 6))
@@ -121,22 +121,22 @@ def plot_categlory_histogram():
 def save_datasets():
     dg = DataGrabber()
     X_train, X_test, y_train, y_test = dg.get_data()
-    #pickle.dump((X_train, y_train, X_test, y_test), open('data.pickle','wb+'))
-    X_train, y_train = dg.augment_dataset(X_train, y_train, n_aug=5)
-    print(X_train.shape)
-    print(y_train.shape)
+    np.save('data.npy',(X_train, y_train, X_test, y_test),allow_pickle=True)#open('data.npy','wb+'))
+    #X_train, y_train = dg.augment_dataset(X_train, y_train, n_aug=5)
+    #print(X_train.shape)
+    #print(y_train.shape)
     # I was not able to do this on my machine bc file was over 4 Gib w/ n_aug=5
-    #pickle.dump((X_train, y_train, X_test, y_test), open('augmented_data.pickle','wb+'))
+    #np.save('augmented_data.npy',(X_train, y_train, X_test, y_test))#open('augmented_data.npy','wb+'))
 
 def get_augmented_dataset(n_aug=5):
     dg = DataGrabber()
-    X_train, y_train, X_test, y_test = pickle.load(open('data.pickle','rb+'))
+    X_train, y_train, X_test, y_test = np.load(open('data.npy','rb+'))
     X_train, y_train = dg.augment_dataset(X_train, y_train, n_aug=n_aug)
     return X_train, y_train, X_test, y_test
 
 def get_dataset():
     dg = DataGrabber()
-    X_train, y_train, X_test, y_test = pickle.load(open('data.pickle','rb+'))
+    X_train, y_train, X_test, y_test = np.load('data.pickle',allow_pickle=True)
     return X_train, y_train, X_test, y_test
 
 
