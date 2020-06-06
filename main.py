@@ -6,22 +6,26 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
-X_train, y_train, X_test, y_test = get_dataset()
+augmented=True
+if augmented:
+    X_train, y_train, X_test, y_test = get_augmented_dataset(n_aug=5)
+else:
+    X_train, y_train, X_test, y_test = get_dataset()
 
 #from keras.applications import VGG16,ResNet50,DenseNet121,InceptionV3
-pretrained_model = 'resnet50'#"vgg16"#"resnet50"
+pretrained_model = "inceptionv3"
 model_filepath = None
 new_filepath = f'{pretrained_model}_{datetime.now()}'
 input_shape = X_train[0].shape
 num_classes = len(y_train[0])
 batch_size = 64
-epochs = 10
+epochs = 20
 
 model = Pretrained(pretrained_model, input_shape, num_classes)
 
 # Setting weights
 if model_filepath == None:
-    model.fit(X_train, y_train, batch_size, epochs)
+    model.fit(X_train, y_train, X_test, y_test, batch_size, epochs)
     confusion = model.get_confusion(X_train,y_train)
     print(confusion)
     sns.heatmap(confusion/np.sum(confusion))

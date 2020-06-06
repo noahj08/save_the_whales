@@ -4,6 +4,7 @@
 import math
 import random
 import pickle
+import json
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -30,6 +31,44 @@ class DataGrabber():
         for idx,row in self.train_df.iterrows():
             img = load_img(f"train/{row['Image']}", target_size=(100,100,3))
             img_arr = img_to_array(img)
+            img_arr = preprocess_input(img_arr)
+            X[idx] = img_arr
+            label = row['Id']
+            if not label in self.whale2id:
+                self.whale2id[label] = self.unused_id
+                self.unused_id += 1
+            Y[idx] = int(self.whale2id[label])
+            if idx%500 == 0:
+                print(f"Processing image {idx}")
+        tmp = np.zeros((Y.size, int(Y.max()+1)))
+        tmp[np.arange(Y.size), Y] = 1
+        Y = tmp
+        X_train, X_test, y_train, y_test = train_test_split(X,Y,test_size=0.1)
+        return (X_train, X_test, y_train, y_test)
+
+
+    def crop(self, img_arr, annotations):
+        x1 = annotations['x']
+        x2 = x1 + annotations['width']
+        y1 = annotations['y']
+        y2 = y1 + annotations['height']
+        out = img_arr[x1:x2, y1:y2]
+        return out
+
+    def get_cropped_data(self,filepath='slot.json'):
+        Y = np.zeros((self.train_df.shape[0],),dtype=int)
+        X = np.zeros((self.train_df.shape[0],100,100,3))
+        crop_file = json.load(open(filepath,'rb+'))
+        cropping = {}
+        for crp in crop_file:
+            name = crp['filename']
+            cropping[name] = crp['annotations']
+        for idx,row in self.train_df.iterrows():
+            img = load_img(f"train/{row['Image']}")#, target_size=(100,100,3))
+            img_arr = img_to_array(img)
+            print(img_arr.shape)
+            img_arr = self.crop(img_arr, cropping[f"{row['Image']}"])
+            print(img_arr.shape)
             img_arr = preprocess_input(img_arr)
             X[idx] = img_arr
             label = row['Id']
@@ -130,7 +169,7 @@ def save_datasets():
 
 def get_augmented_dataset(n_aug=5):
     dg = DataGrabber()
-    X_train, y_train, X_test, y_test = np.load(open('data.npy','rb+'))
+    X_train, y_train, X_test, y_test = np.load('data.pickle',allow_pickle=True)
     X_train, y_train = dg.augment_dataset(X_train, y_train, n_aug=n_aug)
     return X_train, y_train, X_test, y_test
 
@@ -140,7 +179,13 @@ def get_dataset():
     return X_train, y_train, X_test, y_test
 
 
+def get_cropped_dataset():
+    dg = DataGrabber()
+    X_train, y_train, X_test, y_test = dg.get_cropped_data()#np.load('data.pickle',allow_pickle=True)
+    return X_train, y_train, X_test, y_test
+
 if __name__ == '__main__':
-    plot_some_images()
-    plot_categlory_histogram()
-    save_datasets()
+    get_cropped_dataset()
+    #plot_some_images()
+    ##plot_categlory_histogram()
+    #save_datasets()
