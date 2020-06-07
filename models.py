@@ -102,23 +102,26 @@ class Simple(Model):
         regularizer = tf.keras.regularizers.l2(lambd)
         #picking vgg16 as pretrained (base) model https://keras.io/applications/#vgg16
         if model_id == 0:
-            self.model.add(Conv2d)
-	    self.model.add(Flatten())
-	    self.model.add(Dropout(0.1))
-	     #self.model.add(BatchNormalization())
-	    self.model.add(Dense(48, activation='relu')) #64
-            self.model.add(Dropout(0.1))
-	    #self.model.add(BatchNormalization())
-	    self.model.add(Dense(48, activation='relu')) #48
-	    self.model.add(Dropout(0.1))
-	    #self.model.add(BatchNormalization())
-	    self.model.add(Dense(num_classes, activation='softmax'))
+                        self.model.add(Conv2D(48, kernel_size=(3, 3),
+                                         activation='relu',
+                                         input_shape=input_shape))
+                        self.model.add(Conv2D(48, (3, 3), activation='sigmoid'))
+                        self.model.add(MaxPooling2D(pool_size=(2, 2)))
+                        self.model.add(Conv2D(48, (5, 5), activation='sigmoid'))
+                        self.model.add(MaxPooling2D(pool_size=(3, 3)))
+                        #self.model.add(Dropout(0.33))
+                        self.model.add(Flatten())
+                        self.model.add(Dense(36, activation='sigmoid'))
+                        #self.model.add(Dropout(0.33))
+                        self.model.add(Dense(36, activation='sigmoid'))
+                        self.model.add(Dense(num_classes, activation='softmax'))
+            #self.model.add(BatchNormalization())
         for layer in self.model.layers:
             for attr in ['activity_regularizer']:
                 if hasattr(layer,attr):
                     setattr(layer,attr,regularizer)
         self.model.compile(loss=keras.losses.categorical_crossentropy,
-                                  optimizer=keras.optimizers.Adam(lr=0.0001),
+                                  optimizer=keras.optimizers.Adam(lr=0.00001),
                                                 metrics=['accuracy','top_k_categorical_accuracy'])
         self.model.summary()
 
