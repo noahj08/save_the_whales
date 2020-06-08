@@ -32,17 +32,18 @@ else:
 	# model = load_model(model_filepath, custom_objects={'top_k_categorical_accuracy':tf.keras.metrics.TopKCategoricalAccuracy})
 	model.model.load_weights(model_filepath)
 
-filter_indices = [0,1]
-classes = tf.math.argmax(model.predict(X_test), axis=1)
-classes = np.array(tf.gather(classes, filter_indices))
+filter_indices = [7, 1, 296, 257, 283] #most common classes
 
+classes = tf.math.argmax(model.predict(X_train[filter_indices]), axis=1)
+# classes = np.array(tf.gather(classes, filter_indices))
 imgs, labels = get_imgs_from_idx(filter_indices)
+print(labels)
 for i in range(len(filter_indices)):
 	plt.subplot(2, len(filter_indices), i + 1)
 	plt.title(str(labels[i]))
     
 	plt.imshow(imgs[i], cmap='gray')
-	img = visualize_saliency(model.model, -1, filter_indices[i], X_test, wrt_tensor=None)
+	img = visualize_saliency(model.model, -1, filter_indices[i], X_train, wrt_tensor=None)
 	plt.subplot(2, len(filter_indices), len(filter_indices)+i+1)
 	# plt.title('Saliency for Class ' +str(classes[i]))
 	plt.imshow(img, cmap=plt.cm.hot)
