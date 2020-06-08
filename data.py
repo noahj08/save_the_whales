@@ -133,6 +133,7 @@ class Visualizer():
                 plt.imshow(imgs[i], cmap='gray')
         plt.savefig(fname)
 
+
 def plot_some_images():
     vis = Visualizer()
     dg = DataGrabber()
@@ -173,9 +174,13 @@ def get_augmented_dataset(n_aug=5):
     X_train, y_train = dg.augment_dataset(X_train, y_train, n_aug=n_aug)
     return X_train, y_train, X_test, y_test
 
-def get_dataset():
+def get_dataset(from_pickle=False):
     dg = DataGrabber()
-    X_train, y_train, X_test, y_test = np.load('data.pickle',allow_pickle=True)
+    if from_pickle:
+       filename='data.pickle'
+    else:
+        filename='data.npy'
+    X_train, y_train, X_test, y_test = np.load(filename,allow_pickle=True)
     return X_train, y_train, X_test, y_test
 
 
@@ -184,8 +189,21 @@ def get_cropped_dataset():
     X_train, y_train, X_test, y_test = dg.get_cropped_data()#np.load('data.pickle',allow_pickle=True)
     return X_train, y_train, X_test, y_test
 
+def get_imgs_from_idx(indices):
+    dg = DataGrabber()
+    vis = Visualizer()
+    train_df = dg.train_df
+    imgs = np.array(train_df['Image'])[indices]
+    labels = np.array(train_df['Id'])[indices]
+
+    vis.plot_images_for_filenames(imgs, [1,1], "test.png", rows=2)
+    imgs = [plt.imread(f'train/{filename}') for filename in imgs]
+
+    return imgs, labels
+
 if __name__ == '__main__':
-    get_cropped_dataset()
+    # ge\t_cropped_dataset()
     #plot_some_images()
     ##plot_categlory_histogram()
     #save_datasets()
+    get_imgs_from_idx([0,1])
