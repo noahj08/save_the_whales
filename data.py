@@ -157,6 +157,18 @@ def plot_categlory_histogram():
     
     plt.savefig('categlories.png')
 
+def get_most_common():
+    vis = Visualizer()
+    dg = DataGrabber()
+    train_df = dg.train_df
+    size_buckets = Counter(train_df['Id'].value_counts().values)
+    most_common_labels = train_df['Id'].value_counts()[:,0]
+    #     most_common = [new_whale    810
+    # w_1287fbc     34
+    # w_98baff9     27
+    # w_7554f44     26
+    # w_1eafe46     23
+
 
 def save_datasets():
     dg = DataGrabber()
@@ -196,14 +208,17 @@ def get_imgs_from_idx(indices):
     imgs = np.array(train_df['Image'])[indices]
     labels = np.array(train_df['Id'])[indices]
 
-    vis.plot_images_for_filenames(imgs, [1,1], "test.png", rows=2)
+    # vis.plot_images_for_filenames(imgs, [1,1], "test.png", rows=2)
     imgs = [plt.imread(f'train/{filename}') for filename in imgs]
 
     return imgs, labels
+
+
 
 if __name__ == '__main__':
     # ge\t_cropped_dataset()
     #plot_some_images()
     ##plot_categlory_histogram()
     #save_datasets()
-    get_imgs_from_idx([0,1])
+    # get_imgs_from_idx([0,1])
+    get_most_common()

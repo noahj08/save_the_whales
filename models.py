@@ -45,8 +45,8 @@ class Model():
         print(f'Model loaded from {filepath}')
 
     def evaluate(self, X, y, batch_size):
-        loss, acc = self.model.evaluate(X, y, batch_size=batch_size)
-        return loss, acc
+        loss, acc, top5_acc = self.model.evaluate(X, y, batch_size=batch_size)
+        return loss, acc, top5_acc
 
     def predict(self, X):
         return self.model.predict(X)
@@ -96,7 +96,7 @@ class Pretrained(Model):
 
 
 class Simple(Model):
-    
+
     def __init__(self, input_shape, num_classes,model_id=0,lambd=0.05):
         Model.__init__(self)
         regularizer = tf.keras.regularizers.l2(lambd)
@@ -116,6 +116,7 @@ class Simple(Model):
                         self.model.add(Dense(36, activation='sigmoid'))
                         self.model.add(Dense(num_classes, activation='softmax'))
             #self.model.add(BatchNormalization())
+
         for layer in self.model.layers:
             for attr in ['activity_regularizer']:
                 if hasattr(layer,attr):
