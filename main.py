@@ -1,12 +1,12 @@
 # Main script for training and testing models
 from data import get_dataset, get_augmented_dataset
-from models import Pretrained
+from models import Pretrained,Simple
 from datetime import datetime
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
-augmented=True
+augmented=False
 if augmented:
     X_train, y_train, X_test, y_test = get_augmented_dataset(n_aug=5)
 else:
@@ -18,10 +18,11 @@ model_filepath = None
 new_filepath = f'{pretrained_model}_{datetime.now()}'
 input_shape = X_train[0].shape
 num_classes = len(y_train[0])
-batch_size = 64
+batch_size = 16
 epochs = 20
 
-model = Pretrained(pretrained_model, input_shape, num_classes)
+#model = Pretrained(pretrained_model, input_shape, num_classes)
+model = Simple(input_shape, num_classes, 0)
 
 # Setting weights
 if model_filepath == None:
